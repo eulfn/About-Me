@@ -431,22 +431,31 @@ function addAmbientEffects() {
     // Add subtle particle effect
     createParticles();
     
-    // Add cursor trail effect
-    addCursorTrail();
+    // Add cursor trail effect (only on desktop)
+    if (!isMobile()) {
+        addCursorTrail();
+    }
+}
+
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 }
 
 function createParticles() {
     const container = document.querySelector('.container');
     if (!container) return;
     
-    for (let i = 0; i < 50; i++) { // Increased from 20 to 50
+    // Reduce particle count on mobile for better performance
+    const particleCount = isMobile() ? 15 : 50;
+    
+    for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'ambient-particle';
         particle.style.cssText = `
             position: fixed;
-            width: 3px; /* Increased from 2px */
-            height: 3px; /* Increased from 2px */
-            background: rgba(255, 255, 255, 0.3); /* Increased from 0.1 */
+            width: ${isMobile() ? '2px' : '3px'};
+            height: ${isMobile() ? '2px' : '3px'};
+            background: rgba(255, 255, 255, ${isMobile() ? '0.2' : '0.3'});
             border-radius: 50%;
             pointer-events: none;
             left: ${Math.random() * 100}vw;

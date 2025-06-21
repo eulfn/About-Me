@@ -231,9 +231,16 @@ body {
 }
 
 .content .info-line {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
     padding: 0.3rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
+}
+
+.content .info-line:last-of-type {
+    border-bottom: none;
 }
 
 .content .info-line:hover {
@@ -248,6 +255,7 @@ body {
     color: #b0b0b0;
     min-width: 120px;
     font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
 .value {
@@ -399,39 +407,102 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .main-content {
+        align-items: flex-start;
+        padding-top: 4rem;
+        padding-bottom: 12rem;
+    }
+    
     .about-section {
-        padding: 2rem;
-        margin: 1rem;
+        padding: 1.5rem;
+        margin: 0.5rem;
+        max-width: calc(100vw - 1rem);
     }
     
     .title {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
     }
     
-    .info-line {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
+    .content {
+        gap: 0.6rem;
+    }
+    
+    .content .info-line {
+        padding: 0.25rem 0;
+        font-size: 0.9rem;
     }
     
     .label {
-        min-width: auto;
+        min-width: 80px;
+        font-size: 0.9rem;
+    }
+    
+    .value {
+        font-size: 0.9rem;
+    }
+    
+    .social-icons {
+        gap: 0.8rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+    }
+    
+    .social-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .social-icon svg {
+        width: 18px;
+        height: 18px;
     }
     
     .audio-player {
-        width: calc(100% - 20px);
-        max-width: 320px;
+        position: fixed;
         bottom: 10px;
         right: 10px;
         left: 10px;
+        width: auto;
+        max-width: 320px;
         margin: 0 auto;
+        z-index: 1000;
+    }
+    
+    .player-content {
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .song-cover {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .song-title {
+        font-size: 0.9rem;
+    }
+    
+    .song-artist {
+        font-size: 0.8rem;
+    }
+    
+    .player-control {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .player-control svg {
+        width: 16px;
+        height: 16px;
     }
     
     .battery-indicator {
-        bottom: 100px; /* Adjust to not overlap with player */
+        bottom: 95px;
         left: 50%;
         transform: translateX(-50%);
         padding: 8px 12px;
+        font-size: 0.8rem;
     }
     
     .battery-body {
@@ -446,45 +517,245 @@ body {
     .battery-status {
         font-size: 0.7rem;
     }
-
+    
+    .custom-cursor {
+        display: none;
+    }
+    
+    body {
+        cursor: auto;
+    }
+    
     .entry-title {
-        font-size: 3rem;
+        font-size: 2.5rem;
     }
     
-    .audio-player {
-        bottom: 5px;
-        right: 5px;
-        left: 5px;
-        width: auto;
-    }
-    
-    .battery-indicator {
-        bottom: 90px; /* Adjust to not overlap with player */
+    .entry-prompt {
+        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 480px) {
+    .main-content {
+        padding-top: 3rem;
+        padding-bottom: 10rem;
+    }
+    
     .about-section {
-        padding: 1.5rem;
+        padding: 1rem;
+        margin: 0.25rem;
+        border-radius: 16px;
     }
     
     .title {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
+        margin-bottom: 1rem;
     }
     
-    .label, .value {
-        font-size: 1rem;
+    .content {
+        gap: 0.5rem;
+    }
+    
+    .content .info-line {
+        padding: 0.2rem 0;
+        font-size: 0.85rem;
+    }
+    
+    .label {
+        min-width: 70px;
+        font-size: 0.85rem;
+    }
+    
+    .value {
+        font-size: 0.85rem;
+    }
+    
+    .social-icons {
+        gap: 0.6rem;
+        margin-top: 1rem;
+        padding-top: 0.8rem;
+    }
+    
+    .social-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .social-icon svg {
+        width: 16px;
+        height: 16px;
     }
     
     .audio-player {
         bottom: 5px;
         right: 5px;
         left: 5px;
-        width: auto;
+        max-width: 280px;
+    }
+    
+    .player-content {
+        gap: 6px;
+        padding: 6px;
+    }
+    
+    .song-cover {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .song-title {
+        font-size: 0.8rem;
+    }
+    
+    .song-artist {
+        font-size: 0.7rem;
+    }
+    
+    .player-control {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .player-control svg {
+        width: 14px;
+        height: 14px;
     }
     
     .battery-indicator {
-        bottom: 90px; /* Adjust to not overlap with player */
+        bottom: 85px;
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
+    
+    .battery-body {
+        width: 20px;
+        height: 10px;
+    }
+    
+    .battery-text {
+        font-size: 0.7rem;
+    }
+    
+    .battery-status {
+        font-size: 0.6rem;
+    }
+    
+    .entry-title {
+        font-size: 2rem;
+    }
+    
+    .entry-prompt {
+        font-size: 0.8rem;
+    }
+    
+    .goon-counter {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .about-section {
+        padding: 0.8rem;
+        margin: 0.2rem;
+    }
+    
+    .title {
+        font-size: 1.4rem;
+    }
+    
+    .content .info-line {
+        font-size: 0.8rem;
+    }
+    
+    .label {
+        min-width: 60px;
+        font-size: 0.8rem;
+    }
+    
+    .value {
+        font-size: 0.8rem;
+    }
+    
+    .social-icons {
+        gap: 0.5rem;
+    }
+    
+    .social-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .social-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .audio-player {
+        max-width: 260px;
+    }
+    
+    .song-cover {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .song-title {
+        font-size: 0.75rem;
+    }
+    
+    .song-artist {
+        font-size: 0.65rem;
+    }
+    
+    .battery-indicator {
+        bottom: 80px;
+        padding: 5px 8px;
+    }
+    
+    .entry-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    .main-content {
+        padding-top: 2rem;
+        padding-bottom: 8rem;
+    }
+    
+    .about-section {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+    
+    .title {
+        font-size: 1.4rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .content {
+        gap: 0.4rem;
+    }
+    
+    .social-icons {
+        margin-top: 0.8rem;
+        padding-top: 0.6rem;
+    }
+    
+    .audio-player {
+        bottom: 5px;
+        right: 5px;
+        left: 5px;
+        max-width: 300px;
+    }
+    
+    .battery-indicator {
+        bottom: 75px;
+    }
+    
+    .entry-title {
+        font-size: 2rem;
     }
 }
 
@@ -515,9 +786,8 @@ body {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 1.5rem;
+    padding-top: 1rem;
 }
 
 .social-icon {
@@ -561,30 +831,4 @@ body {
     color: #E4405F;
     background: rgba(228, 64, 95, 0.1);
     border-color: rgba(228, 64, 95, 0.3);
-}
-
-/* Info Grid Layout */
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 1rem;
-}
-
-.info-column {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.info-column .info-line {
-    border-bottom: none;
-    padding: 0.3rem 0;
-}
-
-.info-column .info-line:hover {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 8px;
-    padding: 0.3rem 0.5rem;
-    margin: 0 -0.5rem;
 } 
