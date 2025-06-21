@@ -245,10 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fade in main content
         mainContainer.classList.remove('hidden');
 
+        // Fetch and display viewer count
+        updateViewerCount();
+
         // Remove the entry screen from the DOM after the transition
         entryScreen.addEventListener('transitionend', () => {
             entryScreen.remove();
-        });
+        }, { once: true });
         
         // Remove this event listener so it only runs once
         entryScreen.removeEventListener('click', enterSite);
@@ -425,6 +428,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
     }
 });
+
+async function updateViewerCount() {
+    const viewerCountEl = document.getElementById('viewerCount');
+    if (!viewerCountEl) return;
+
+    try {
+        // Increment the count on the backend and get the new total
+        const response = await fetch('/api/views', { method: 'POST' });
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}`);
+        }
+        const data = await response.json();
+        
+        // Animate the number change
+        const startValue = parseInt(viewerCountEl.textContent.replace(/,/g, '')) || 0;
+        const newValue = data.views;
+        
+        if (startValue === newValue) {
+             viewerCountEl.textContent = newValue.toLocaleString();
+             return;
+        }
+
+        const duration = 1000;
+        const startTime = performance.now();
+        const difference = newValue - startValue;
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const currentValue = Math.floor(startValue + (difference * easeOutQuart));
+            
+            viewerCountEl.textContent = currentValue.toLocaleString();
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                viewerCountEl.textContent = newValue.toLocaleString();
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    } catch (error) {
+        console.error('Error with viewer count:', error);
+        viewerCountEl.textContent = 'N/A';
+    }
+}
 
 // Ambient Effects
 function addAmbientEffects() {
