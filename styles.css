@@ -590,14 +590,4 @@ body {
     margin-top: 0.5rem;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.info-grid .viewer-count-line {
-    grid-column: 1 / -1;
-    text-align: center;
-}
-
-.viewer-count {
-    font-weight: 600;
-    color: #82aaff; /* A nice, soft blue for the counter */
 } 
