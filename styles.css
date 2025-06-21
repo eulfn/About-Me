@@ -197,6 +197,9 @@ body {
 .about-section .content {
     position: relative;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
 }
 
 .title {
@@ -227,47 +230,16 @@ body {
     gap: 1.5rem;
 }
 
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.info-grid .info-line {
-    border-bottom: none;
-    padding: 0.5rem 0;
-    margin: 0;
-}
-
-.info-grid .info-line:hover {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 12px;
-    padding: 0.5rem 1rem;
-    margin: 0 -1rem;
-}
-
-.info-grid .goon-counter-line {
-    grid-column: 1 / -1;
-    border-bottom: none;
-    margin-top: 0.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.info-line {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.5rem 0;
+.content .info-line {
+    padding: 0.3rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
 }
 
-.info-line:hover {
+.content .info-line:hover {
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
-    padding: 0.5rem 1rem;
+    padding: 0.3rem 1rem;
     margin: 0 -1rem;
 }
 
@@ -436,40 +408,14 @@ body {
         font-size: 2rem;
     }
     
-    .info-grid {
-        grid-template-columns: 1fr; /* Single column on mobile */
-        gap: 0.5rem;
-    }
-    
-    .info-grid .info-line {
+    .info-line {
         flex-direction: column;
         align-items: flex-start;
-        gap: 0.25rem;
+        gap: 0.5rem;
     }
     
     .label {
         min-width: auto;
-        font-size: 0.9rem;
-    }
-    
-    .value {
-        font-size: 0.9rem;
-    }
-    
-    .social-icons {
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-    }
-    
-    .social-icon {
-        width: 35px;
-        height: 35px;
-    }
-    
-    .social-icon svg {
-        width: 18px;
-        height: 18px;
     }
     
     .audio-player {
@@ -500,48 +446,9 @@ body {
     .battery-status {
         font-size: 0.7rem;
     }
-    
+
     .entry-title {
         font-size: 3rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .about-section {
-        padding: 1.5rem;
-        margin: 0.5rem;
-    }
-    
-    .title {
-        font-size: 1.8rem;
-        margin-bottom: 2rem;
-    }
-    
-    .info-grid {
-        gap: 0.25rem;
-    }
-    
-    .info-grid .info-line {
-        padding: 0.25rem 0;
-    }
-    
-    .label, .value {
-        font-size: 0.85rem;
-    }
-    
-    .social-icons {
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-    
-    .social-icon {
-        width: 32px;
-        height: 32px;
-    }
-    
-    .social-icon svg {
-        width: 16px;
-        height: 16px;
     }
     
     .audio-player {
@@ -553,15 +460,31 @@ body {
     
     .battery-indicator {
         bottom: 90px; /* Adjust to not overlap with player */
-        padding: 6px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-section {
+        padding: 1.5rem;
     }
     
-    .entry-title {
-        font-size: 2.5rem;
+    .title {
+        font-size: 1.8rem;
     }
     
-    .entry-prompt {
-        font-size: 0.9rem;
+    .label, .value {
+        font-size: 1rem;
+    }
+    
+    .audio-player {
+        bottom: 5px;
+        right: 5px;
+        left: 5px;
+        width: auto;
+    }
+    
+    .battery-indicator {
+        bottom: 90px; /* Adjust to not overlap with player */
     }
 }
 
@@ -638,4 +561,30 @@ body {
     color: #E4405F;
     background: rgba(228, 64, 95, 0.1);
     border-color: rgba(228, 64, 95, 0.3);
+}
+
+/* Info Grid Layout */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-column .info-line {
+    border-bottom: none;
+    padding: 0.3rem 0;
+}
+
+.info-column .info-line:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    padding: 0.3rem 0.5rem;
+    margin: 0 -0.5rem;
 } 
