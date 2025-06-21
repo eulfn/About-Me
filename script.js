@@ -269,61 +269,78 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3D Tilt Effect for About Section
     const aboutSection = document.querySelector('.about-section');
     if (aboutSection) {
-        let isHovering = false;
-        let currentRotateX = 0;
-        let currentRotateY = 0;
-        let targetRotateX = 0;
-        let targetRotateY = 0;
-        
-        const animate = () => {
-            // Smooth interpolation
-            currentRotateX += (targetRotateX - currentRotateX) * 0.1;
-            currentRotateY += (targetRotateY - currentRotateY) * 0.1;
+        if (!isMobile()) {
+            // Desktop mouse tilt
+            let isHovering = false;
+            let currentRotateX = 0;
+            let currentRotateY = 0;
+            let targetRotateX = 0;
+            let targetRotateY = 0;
             
-            aboutSection.style.transform = `perspective(1000px) rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
-            
-            if (isHovering) {
-                requestAnimationFrame(animate);
-            }
-        };
-        
-        aboutSection.addEventListener('mouseenter', () => {
-            isHovering = true;
-            animate();
-        });
-        
-        aboutSection.addEventListener('mousemove', (e) => {
-            const rect = aboutSection.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            const mouseX = e.clientX - centerX;
-            const mouseY = e.clientY - centerY;
-            
-            // Reduced sensitivity and added bounds checking
-            const maxRotation = 8; // Reduced from 10
-            targetRotateX = Math.max(-maxRotation, Math.min(maxRotation, (mouseY / (rect.height / 2)) * -maxRotation));
-            targetRotateY = Math.max(-maxRotation, Math.min(maxRotation, (mouseX / (rect.width / 2)) * maxRotation));
-        });
-        
-        aboutSection.addEventListener('mouseleave', () => {
-            isHovering = false;
-            targetRotateX = 0;
-            targetRotateY = 0;
-            
-            // Smooth return to center
-            const returnToCenter = () => {
+            const animate = () => {
                 currentRotateX += (targetRotateX - currentRotateX) * 0.1;
                 currentRotateY += (targetRotateY - currentRotateY) * 0.1;
                 
                 aboutSection.style.transform = `perspective(1000px) rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
                 
-                if (Math.abs(currentRotateX) > 0.1 || Math.abs(currentRotateY) > 0.1) {
-                    requestAnimationFrame(returnToCenter);
+                if (isHovering) {
+                    requestAnimationFrame(animate);
                 }
             };
-            returnToCenter();
-        });
+            
+            aboutSection.addEventListener('mouseenter', () => {
+                isHovering = true;
+                animate();
+            });
+            
+            aboutSection.addEventListener('mousemove', (e) => {
+                const rect = aboutSection.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const mouseX = e.clientX - centerX;
+                const mouseY = e.clientY - centerY;
+                
+                const maxRotation = 8;
+                targetRotateX = Math.max(-maxRotation, Math.min(maxRotation, (mouseY / (rect.height / 2)) * -maxRotation));
+                targetRotateY = Math.max(-maxRotation, Math.min(maxRotation, (mouseX / (rect.width / 2)) * maxRotation));
+            });
+            
+            aboutSection.addEventListener('mouseleave', () => {
+                isHovering = false;
+                targetRotateX = 0;
+                targetRotateY = 0;
+                
+                const returnToCenter = () => {
+                    currentRotateX += (targetRotateX - currentRotateX) * 0.1;
+                    currentRotateY += (targetRotateY - currentRotateY) * 0.1;
+                    
+                    aboutSection.style.transform = `perspective(1000px) rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+                    
+                    if (Math.abs(currentRotateX) > 0.1 || Math.abs(currentRotateY) > 0.1) {
+                        requestAnimationFrame(returnToCenter);
+                    }
+                };
+                returnToCenter();
+            });
+        } else {
+            // Mobile gyroscope tilt
+            window.addEventListener('deviceorientation', (e) => {
+                const beta = e.beta; // X-axis rotation (front to back)
+                const gamma = e.gamma; // Y-axis rotation (left to right)
+                
+                const maxRotation = 10;
+                
+                let rotateX = (beta - 45) * 0.3;
+                let rotateY = gamma * 0.3;
+                
+                // Clamp values
+                rotateX = Math.max(-maxRotation, Math.min(maxRotation, rotateX));
+                rotateY = Math.max(-maxRotation, Math.min(maxRotation, rotateY));
+                
+                aboutSection.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+        }
     }
 
     // Custom Audio Player Logic
