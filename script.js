@@ -262,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
     new BatteryManager();
     new GoonCounter();
     new PageEffects();
-    new DiscordStatus('1380838876049834155');
     
     // Add some ambient effects
     addAmbientEffects();
@@ -443,85 +442,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
     }
 });
-
-class DiscordStatus {
-    constructor(userId) {
-        this.userId = userId;
-        this.apiUrl = `https://api.lanyard.rest/v1/users/${this.userId}`;
-        
-        this.statusEl = document.getElementById('discordStatus');
-        this.avatarEl = document.getElementById('discordAvatar');
-        this.indicatorEl = document.getElementById('discordStatusIndicator');
-        this.usernameEl = document.getElementById('discordUsername');
-        this.activityEl = document.getElementById('discordActivity');
-        
-        this.init();
-    }
-    
-    async init() {
-        if (!this.statusEl) return;
-        
-        const fetchData = async () => {
-            try {
-                const res = await fetch(this.apiUrl);
-                if (!res.ok) { // Check if response is successful (status 200-299)
-                    throw new Error(`API returned status ${res.status}`);
-                }
-                const { data } = await res.json();
-                this.updateStatus(data);
-            } catch (error) {
-                console.error('Error fetching Discord status:', error);
-                this.showError();
-            }
-        };
-
-        await fetchData(); // Initial fetch
-        
-        // Poll for updates every 30 seconds
-        setInterval(fetchData, 30000);
-    }
-    
-    updateStatus(data) {
-        if (!data || !data.discord_user) {
-            this.showError();
-            return;
-        }
-
-        const { discord_user, discord_status, activities } = data;
-        
-        // Avatar
-        this.avatarEl.src = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp`;
-        
-        // Status indicator
-        this.indicatorEl.className = `discord-status-indicator ${discord_status}`;
-        
-        // Username
-        this.usernameEl.textContent = discord_user.username;
-        
-        // Activity
-        if (activities && activities.length > 0) {
-            const activity = activities[0];
-            let activityText = '';
-            
-            if (activity.name === 'Spotify') {
-                activityText = `Listening to ${activity.details} by ${activity.state}`;
-            } else if (activity.name === 'Visual Studio Code') {
-                activityText = `Working on ${activity.details}`;
-            } else {
-                activityText = `Playing ${activity.name}`;
-            }
-            this.activityEl.textContent = activityText;
-        } else {
-            this.activityEl.textContent = 'No current activity';
-        }
-    }
-    
-    showError() {
-        this.usernameEl.textContent = 'Error';
-        this.activityEl.textContent = 'Could not fetch status';
-        this.indicatorEl.className = 'discord-status-indicator offline';
-    }
-}
 
 // Ambient Effects
 function addAmbientEffects() {
