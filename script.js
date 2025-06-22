@@ -245,6 +245,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fade in main content
         mainContainer.classList.remove('hidden');
 
+        // Initialize interactive elements after entry
+        setup3DTilt();
+
         // Remove the entry screen from the DOM after the transition
         entryScreen.addEventListener('transitionend', () => {
             entryScreen.remove();
@@ -266,64 +269,97 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add some ambient effects
     addAmbientEffects();
 
-    // 3D Tilt Effect for About Section
-    const aboutSection = document.querySelector('.about-section');
-    if (aboutSection) {
-        let isHovering = false;
-        let currentRotateX = 0;
-        let currentRotateY = 0;
-        let targetRotateX = 0;
-        let targetRotateY = 0;
-        
-        const animate = () => {
-            // Smooth interpolation
-            currentRotateX += (targetRotateX - currentRotateX) * 0.1;
-            currentRotateY += (targetRotateY - currentRotateY) * 0.1;
+    function setup3DTilt() {
+        const aboutSection = document.querySelector('.about-section');
+        if (!aboutSection) return;
+    
+        // --- MOUSE LOGIC FOR DESKTOP ---
+        if (!isMobile()) {
+            let isHovering = false;
+            let currentRotateX = 0, currentRotateY = 0;
+            let targetRotateX = 0, targetRotateY = 0;
             
-            aboutSection.style.transform = `perspective(1000px) rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
-            
-            if (isHovering) {
-                requestAnimationFrame(animate);
-            }
-        };
-        
-        aboutSection.addEventListener('mouseenter', () => {
-            isHovering = true;
-            animate();
-        });
-        
-        aboutSection.addEventListener('mousemove', (e) => {
-            const rect = aboutSection.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            const mouseX = e.clientX - centerX;
-            const mouseY = e.clientY - centerY;
-            
-            // Reduced sensitivity and added bounds checking
-            const maxRotation = 8; // Reduced from 10
-            targetRotateX = Math.max(-maxRotation, Math.min(maxRotation, (mouseY / (rect.height / 2)) * -maxRotation));
-            targetRotateY = Math.max(-maxRotation, Math.min(maxRotation, (mouseX / (rect.width / 2)) * maxRotation));
-        });
-        
-        aboutSection.addEventListener('mouseleave', () => {
-            isHovering = false;
-            targetRotateX = 0;
-            targetRotateY = 0;
-            
-            // Smooth return to center
-            const returnToCenter = () => {
+            const animate = () => {
                 currentRotateX += (targetRotateX - currentRotateX) * 0.1;
                 currentRotateY += (targetRotateY - currentRotateY) * 0.1;
-                
                 aboutSection.style.transform = `perspective(1000px) rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
-                
-                if (Math.abs(currentRotateX) > 0.1 || Math.abs(currentRotateY) > 0.1) {
-                    requestAnimationFrame(returnToCenter);
-                }
+                if (isHovering) requestAnimationFrame(animate);
             };
-            returnToCenter();
-        });
+            
+            aboutSection.addEventListener('mouseenter', () => {
+                isHovering = true;
+                animate();
+            });
+            
+            aboutSection.addEventListener('mousemove', (e) => {
+                const rect = aboutSection.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const mouseX = e.clientX - centerX;
+                const mouseY = e.clientY - centerY;
+                const maxRotation = 8;
+                targetRotateX = Math.max(-maxRotation, Math.min(maxRotation, (mouseY / (rect.height / 2)) * -maxRotation));
+                targetRotateY = Math.max(-maxRotation, Math.min(maxRotation, (mouseX / (rect.width / 2)) * maxRotation));
+            });
+            
+            aboutSection.addEventListener('mouseleave', () => {
+                isHovering = false;
+                targetRotateX = 0;
+                targetRotateY = 0;
+                const returnToCenter = () => {
+                    currentRotateX += (targetRotateX - currentRotateX) * 0.1;
+                    currentRotateY += (targetRotateY - currentRotateY) * 0.1;
+                    aboutSection.style.transform = `perspective(1000px) rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+                    if (Math.abs(currentRotateX) > 0.1 || Math.abs(currentRotateY) > 0.1) {
+                        requestAnimationFrame(returnToCenter);
+                    }
+                };
+                returnToCenter();
+            });
+            return;
+        }
+    
+        // --- GYROSCOPE LOGIC FOR MOBILE ---
+        const initGyroTilt = () => {
+            let currentRotateX = 0, currentRotateY = 0;
+            let targetRotateX = 0, targetRotateY = 0;
+            const easing = 0.08;
+    
+            const animate = () => {
+                currentRotateX += (targetRotateX - currentRotateX) * easing;
+                currentRotateY += (targetRotateY - currentRotateY) * easing;
+                aboutSection.style.transform = `perspective(1000px) rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+                requestAnimationFrame(animate);
+            };
+            animate();
+    
+            window.addEventListener('deviceorientation', (e) => {
+                if (e.beta === null || e.gamma === null) return;
+                const maxTilt = 12;
+                const beta = e.beta;  // Front-back tilt
+                const gamma = e.gamma; // Left-right tilt
+    
+                const clampedBeta = Math.max(-45, Math.min(45, beta));
+                const clampedGamma = Math.max(-45, Math.min(45, gamma));
+                
+                targetRotateX = (clampedBeta / 45) * maxTilt;
+                targetRotateY = (clampedGamma / 45) * maxTilt;
+            });
+        };
+    
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            // iOS 13+
+            DeviceOrientationEvent.requestPermission()
+                .then(state => {
+                    if (state === 'granted') {
+                        initGyroTilt();
+                    }
+                })
+                .catch(console.error);
+        } else if ('DeviceOrientationEvent' in window) {
+            // Android and other devices
+            initGyroTilt();
+        }
     }
 
     // Custom Audio Player Logic
