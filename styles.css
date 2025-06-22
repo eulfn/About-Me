@@ -533,6 +533,10 @@ body {
     .entry-prompt {
         font-size: 0.9rem;
     }
+    
+    .site-footer {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -651,6 +655,10 @@ body {
     .goon-counter {
         font-size: 0.9rem;
     }
+    
+    .site-footer {
+        display: none;
+    }
 }
 
 @media (max-width: 360px) {
@@ -715,6 +723,10 @@ body {
     .entry-title {
         font-size: 1.8rem;
     }
+    
+    .site-footer {
+        display: none;
+    }
 }
 
 /* Landscape orientation adjustments */
@@ -756,6 +768,10 @@ body {
     
     .entry-title {
         font-size: 2rem;
+    }
+    
+    .site-footer {
+        display: none;
     }
 }
 
@@ -831,4 +847,102 @@ body {
     color: #E4405F;
     background: rgba(228, 64, 95, 0.1);
     border-color: rgba(228, 64, 95, 0.3);
-} 
+}
+
+/* Site Footer */
+.site-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.8rem;
+    color: #666;
+    z-index: 1001;
+    display: block; /* Default to visible */
+}
+
+.site-footer a {
+    color: #888;
+    text-decoration: none;
+    border-bottom: 1px dotted #888;
+    transition: color 0.3s, border-bottom-color 0.3s;
+}
+
+.site-footer a:hover {
+    color: #fff;
+    border-bottom-color: #fff;
+}
+
+/* Hide footer on mobile for a cleaner look */
+@media (max-width: 768px) {
+    .site-footer {
+        display: none;
+    }
+}
+
+/* Discord Status */
+.discord-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.discord-status:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.discord-avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.discord-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #282828;
+}
+
+.discord-status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #282828;
+}
+
+.discord-status-indicator.online { background-color: #3ba55d; }
+.discord-status-indicator.idle { background-color: #faa81a; }
+.discord-status-indicator.dnd { background-color: #ed4245; }
+.discord-status-indicator.offline { background-color: #747f8d; }
+
+.discord-info {
+    overflow: hidden;
+}
+
+.discord-username {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+    margin: 0;
+}
+
+.discord-activity {
+    font-size: 0.8rem;
+    color: #b0b0b0;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
