@@ -21,8 +21,7 @@ class BatteryManager {
             } else {
                 this.showFallbackBattery();
             }
-        } catch (error) {
-            console.log('Battery API not available:', error);
+        } catch {
             this.showFallbackBattery();
         }
     }
@@ -48,11 +47,7 @@ class BatteryManager {
         this.batteryStatus.textContent = isCharging ? 'charging' : 'discharging';
         
         // Add charging animation
-        if (isCharging) {
-            this.batteryIndicator.classList.add('charging');
-        } else {
-            this.batteryIndicator.classList.remove('charging');
-        }
+        this.batteryIndicator.classList.toggle('charging', isCharging);
     }
     
     showFallbackBattery() {
@@ -97,7 +92,7 @@ class GoonCounter {
     startFloatingAnimation() {
         // The floating animation is handled by CSS
         // This method can be used for additional JavaScript-based animations
-        setInterval(() => {
+        addGlobalInterval(() => {
             if (!this.isAnimating) {
                 this.simulateTick();
             }
@@ -127,7 +122,7 @@ class GoonCounter {
     animateNumberChange(newValue) {
         const duration = 500;
         const startTime = performance.now();
-        const startValue = parseInt(this.counter.textContent);
+        const startValue = parseInt(this.counter.textContent.replace(/,/g, ''));
         const difference = newValue - startValue;
         
         const animate = (currentTime) => {
@@ -173,7 +168,7 @@ class PageEffects {
         const body = document.body;
         let hue = 0;
         
-        setInterval(() => {
+        addGlobalInterval(() => {
             hue = (hue + 0.1) % 360;
             body.style.background = `
                 linear-gradient(135deg, 
@@ -205,12 +200,20 @@ class PageEffects {
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Custom Cursor Logic
+    // Custom Cursor Logic (debounced for performance)
     const cursor = document.querySelector('.custom-cursor');
     if (cursor) {
+        let rafId = null;
+        let mouseX = 0, mouseY = 0;
+        const updateCursor = () => {
+            cursor.style.left = mouseX + 'px';
+            cursor.style.top = mouseY + 'px';
+            rafId = null;
+        };
         document.addEventListener('mousemove', e => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            if (!rafId) rafId = requestAnimationFrame(updateCursor);
         });
 
         // Add hover effect for links and buttons
@@ -231,35 +234,58 @@ document.addEventListener('DOMContentLoaded', () => {
         if (entryScreen.classList.contains('fade-out')) return;
 
         // Start playing audio at user's system volume
-        audio.volume = 0.5; // Safety volume - 50% to avoid blasting eardrums
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.error("Audio playback failed:", error);
-            });
-        }
-
-        // Fade out entry screen
-        entryScreen.classList.add('fade-out');
-
-        // Fade in main content
-        mainContainer.classList.remove('hidden');
-
-        // Initialize interactive elements after entry
-        setup3DTilt();
-
-        // Remove the entry screen from the DOM after the transition
-        entryScreen.addEventListener('transitionend', () => {
-            entryScreen.remove();
-        });
-        
-        // Remove this event listener so it only runs once
-        entryScreen.removeEventListener('click', enterSite);
-        document.removeEventListener('keydown', enterSite);
+        const playAndProceed = () => {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    audio.volume = 0.5;
+                    // Fade out entry screen and show main content
+                    entryScreen.classList.add('fade-out');
+                    mainContainer.classList.remove('hidden');
+                    setup3DTilt();
+                    entryScreen.addEventListener('transitionend', () => {
+                        entryScreen.remove();
+                    });
+                    entryScreen.removeEventListener('click', enterSite);
+                    document.removeEventListener('keydown', enterSite);
+                    // Hide audio prompt if visible
+                    const audioPrompt = document.getElementById('audioPrompt');
+                    if (audioPrompt) audioPrompt.style.display = 'none';
+                }).catch(() => {
+                    // Show audio prompt if playback fails
+                    const audioPrompt = document.getElementById('audioPrompt');
+                    if (audioPrompt) audioPrompt.style.display = 'block';
+                    const audioPromptBtn = document.getElementById('audioPromptBtn');
+                    if (audioPromptBtn) {
+                        audioPromptBtn.onclick = () => {
+                            playAndProceed();
+                        };
+                    }
+                });
+            }
+        };
+        playAndProceed();
     };
 
+    // Only allow entry on click or safe keydown (not system keys)
     entryScreen.addEventListener('click', enterSite);
-    document.addEventListener('keydown', enterSite);
+    document.addEventListener('keydown', (e) => {
+        // Ignore modifier/system keys
+        if (
+            e.altKey || e.ctrlKey || e.metaKey || e.shiftKey ||
+            ["Alt", "Control", "Shift", "Meta", "OS", "CapsLock", "Tab", "Escape", "ContextMenu"].includes(e.key)
+        ) {
+            return;
+        }
+        // Allow Enter, Space, or alphanumeric keys
+        if (
+            e.key === "Enter" ||
+            e.key === " " ||
+            (/^[a-zA-Z0-9]$/.test(e.key))
+        ) {
+            enterSite();
+        }
+    });
 
     // Initialize components
     new BatteryManager();
@@ -355,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         initGyroTilt();
                     }
                 })
-                .catch(console.error);
+                .catch(() => {});
         } else if ('DeviceOrientationEvent' in window) {
             // Android and other devices
             initGyroTilt();
@@ -369,72 +395,44 @@ document.addEventListener('DOMContentLoaded', () => {
         const playIcon = playPauseBtn.querySelector('.play-icon');
         const pauseIcon = playPauseBtn.querySelector('.pause-icon');
 
-        // Page Visibility API for audio control
-        let originalVolume = 1;
-        let volumeTransition = null;
-        
-        const fadeVolume = (targetVolume, duration = 1000) => {
-            // Clear any existing transition
-            if (volumeTransition) {
-                clearInterval(volumeTransition);
-            }
-            
-            const startVolume = audio.volume;
-            const volumeDifference = targetVolume - startVolume;
-            const steps = 30; // 30 steps over 1 second
-            const stepTime = duration / steps;
-            const volumePerStep = volumeDifference / steps;
-            
-            let currentStep = 0;
-            
-            volumeTransition = setInterval(() => {
-                currentStep++;
-                audio.volume = startVolume + (volumePerStep * currentStep);
-                
-                if (currentStep >= steps) {
-                    audio.volume = targetVolume; // Ensure exact target
-                    clearInterval(volumeTransition);
-                    volumeTransition = null;
-                }
-            }, stepTime);
-        };
-        
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                // User switched to another tab - lower volume gradually
+        let originalVolume = 0.5;
+        let isUserPaused = false;
+
+        const updateOriginalVolume = () => {
+            // Only update if audio is playing and not user-paused
+            if (!audio.paused && !isUserPaused && Math.abs(audio.volume - originalVolume) > 0.05) {
                 originalVolume = audio.volume;
-                fadeVolume(0.3); // Fade to 30%
-            } else {
-                // User returned to the tab - restore volume gradually
-                fadeVolume(originalVolume);
             }
         };
 
-        const handleWindowFocus = () => {
-            // User returned to the browser window - restore volume
-            if (!document.hidden) {
-                fadeVolume(originalVolume);
-            }
-        };
+        // Remove all system event volume changes
+        const handleVisibilityChange = () => {};
+        const handleWindowFocus = () => {};
+        const handleWindowBlur = () => {};
 
-        const handleWindowBlur = () => {
-            // User alt-tabbed to another app or minimized browser - lower volume
-            originalVolume = audio.volume;
-            fadeVolume(0.2); // Fade to 20% (even lower than tab switching)
-        };
-
-        // Listen for page visibility changes (tab switching)
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        
-        // Listen for window focus/blur (alt-tab and minimize)
         window.addEventListener('focus', handleWindowFocus);
         window.addEventListener('blur', handleWindowBlur);
 
         playPauseBtn.addEventListener('click', () => {
             if (audio.paused) {
+                isUserPaused = false;
+                audio.volume = originalVolume;
                 audio.play();
+                pauseIcon.style.display = 'block';
+                playIcon.style.display = 'none';
+                if (playPauseBtn.parentElement.parentElement) {
+                    playPauseBtn.parentElement.parentElement.classList.add('is-playing');
+                }
             } else {
+                isUserPaused = true;
+                // Do NOT update originalVolume here, just pause
                 audio.pause();
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                if (playPauseBtn.parentElement.parentElement) {
+                    playPauseBtn.parentElement.parentElement.classList.remove('is-playing');
+                }
             }
         });
 
@@ -454,11 +452,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Set initial state for the play/pause button when audio starts playing via `enterSite`
         audio.addEventListener('playing', () => {
-             pauseIcon.style.display = 'block';
-             playIcon.style.display = 'none';
+            if (audio.volume === 0.5) {
+                originalVolume = 0.5;
+            }
         }, { once: true });
+
+        addGlobalInterval(() => {
+            if (!isUserPaused) {
+                updateOriginalVolume();
+            }
+        }, 5000);
     }
 });
 
@@ -477,13 +481,40 @@ function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 }
 
+// --- PATCH: Prevent memory leaks from dynamic DOM nodes and event listeners ---
+let globalIntervals = [];
+let ambientParticles = [];
+let cursorTrailElements = [];
+let cursorTrailMouseMove = null;
+
+function addGlobalInterval(fn, ms) {
+    const id = setInterval(fn, ms);
+    globalIntervals.push(id);
+    return id;
+}
+window.addEventListener('beforeunload', () => {
+    globalIntervals.forEach(clearInterval);
+    globalIntervals = [];
+    // Remove ambient particles
+    ambientParticles.forEach(p => p.remove());
+    ambientParticles = [];
+    // Remove cursor trail elements
+    cursorTrailElements.forEach(el => el.remove());
+    cursorTrailElements = [];
+    // Remove cursor trail mousemove listener
+    if (cursorTrailMouseMove) {
+        document.removeEventListener('mousemove', cursorTrailMouseMove);
+        cursorTrailMouseMove = null;
+    }
+});
+
 function createParticles() {
     const container = document.querySelector('.container');
     if (!container) return;
-    
-    // Reduce particle count on mobile for better performance
+    // Remove old particles if any
+    ambientParticles.forEach(p => p.remove());
+    ambientParticles = [];
     const particleCount = isMobile() ? 15 : 50;
-    
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'ambient-particle';
@@ -499,14 +530,15 @@ function createParticles() {
             animation: float-particle ${10 + Math.random() * 15}s infinite linear;
         `;
         container.appendChild(particle);
+        ambientParticles.push(particle);
     }
 }
 
 function addCursorTrail() {
-    const trailElements = [];
-    const maxTrailLength = 18; // A good length for a subtle trail
-
-    // Create a pool of elements to be used for the trail
+    // Remove old trail elements if any
+    cursorTrailElements.forEach(el => el.remove());
+    cursorTrailElements = [];
+    const maxTrailLength = 18;
     for (let i = 0; i < maxTrailLength; i++) {
         const el = document.createElement('div');
         el.style.cssText = `
@@ -516,46 +548,38 @@ function addCursorTrail() {
             pointer-events: none;
             z-index: 9999;
             opacity: 0;
-            filter: blur(2px); /* This creates the soft, faded look */
+            filter: blur(2px);
         `;
         document.body.appendChild(el);
-        trailElements.push(el);
+        cursorTrailElements.push(el);
     }
-
     const positionHistory = [];
-
-    document.addEventListener('mousemove', (e) => {
+    // Remove previous listener if any
+    if (cursorTrailMouseMove) {
+        document.removeEventListener('mousemove', cursorTrailMouseMove);
+    }
+    cursorTrailMouseMove = (e) => {
         positionHistory.push({ x: e.clientX, y: e.clientY });
-
-        // Trim the history to the max trail length
         if (positionHistory.length > maxTrailLength) {
             positionHistory.shift();
         }
-        
-        // Hide all elements first to prevent artifacts
-        trailElements.forEach(el => {
+        cursorTrailElements.forEach(el => {
             el.style.opacity = '0';
         });
-
-        // Update the trail based on the cursor's history
         positionHistory.forEach((pos, index) => {
-            const el = trailElements[index];
+            const el = cursorTrailElements[index];
             if (!el) return;
-
-            // Progress will be 0 for the oldest point and 1 for the newest
             const progress = index / (positionHistory.length - 1);
-            
-            // The trail fades in from tail to head
-            const opacity = progress * 0.4; 
-            const size = progress * 8; // The trail gets bigger towards the cursor
-
+            const opacity = progress * 0.4;
+            const size = progress * 8;
             el.style.opacity = opacity;
             el.style.width = `${size}px`;
             el.style.height = `${size}px`;
             el.style.left = `${pos.x - size / 2}px`;
             el.style.top = `${pos.y - size / 2}px`;
         });
-    });
+    };
+    document.addEventListener('mousemove', cursorTrailMouseMove);
 }
 
 // Add CSS for ambient effects

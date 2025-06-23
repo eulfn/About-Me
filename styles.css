@@ -19,7 +19,7 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-    transition: opacity 1s ease-in-out;
+    transition: opacity 1s;
 }
 
 .container.hidden {
@@ -40,7 +40,7 @@ body {
     justify-content: center;
     z-index: 2000;
     cursor: pointer;
-    transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+    transition: opacity 1s, visibility 1s;
 }
 
 .entry-screen.fade-out {
@@ -64,7 +64,7 @@ body {
     font-family: 'Courier New', Courier, monospace;
     font-size: 1rem;
     color: #888;
-    animation: pulse-prompt 2.5s infinite ease-in-out;
+    animation: pulse-prompt 2.5s infinite;
 }
 
 /* Audio Player - Bottom Right */
@@ -78,7 +78,7 @@ body {
     border-radius: 12px;
     padding: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s;
 }
 
 .player-content {
@@ -132,7 +132,7 @@ body {
     padding: 0;
     color: #000;
     flex-shrink: 0;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s;
 }
 
 .player-control:hover {
@@ -164,9 +164,9 @@ body {
         0 0 0 1px rgba(255, 255, 255, 0.05);
     max-width: 600px;
     width: 100%;
-    animation: fadeInUp 1s ease-out;
+    animation: fadeInUp 1s;
     transform-style: preserve-3d;
-    transition: transform 0.1s ease-out;
+    transition: transform 0.1s;
     position: relative;
 }
 
@@ -185,7 +185,7 @@ body {
     );
     border-radius: 24px;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s;
     pointer-events: none;
     z-index: 1;
 }
@@ -236,7 +236,7 @@ body {
     gap: 0.5rem;
     padding: 0.3rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
+    transition: all 0.3s;
 }
 
 .content .info-line:last-of-type {
@@ -288,7 +288,7 @@ body {
     border-radius: 8px;
     opacity: 0.3;
     z-index: -1;
-    animation: pulse 2s ease-in-out infinite;
+    animation: pulse 2s infinite;
 }
 
 /* Battery Indicator */
@@ -305,7 +305,7 @@ body {
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: slideInLeft 0.8s ease-out;
+    animation: slideInLeft 0.8s;
 }
 
 .battery-icon {
@@ -327,7 +327,7 @@ body {
     height: 100%;
     background: linear-gradient(90deg, #4CAF50, #8BC34A);
     border-radius: 1px;
-    transition: width 0.5s ease;
+    transition: width 0.5s;
     width: 50%;
 }
 
@@ -800,7 +800,7 @@ body {
     background: rgba(255, 255, 255, 0.05);
     color: #b0b0b0;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
