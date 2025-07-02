@@ -4,25 +4,25 @@ A minimalist, dark-themed personal website with modern UI/UX design. Features a 
 
 ## Features
 
-### 🎵 Audio Integration
+###  Audio Integration
 - Embedded Spotify player with the specified track
 - Positioned in the top-right corner
 - Responsive design that adapts to mobile layouts
 
-### 🔋 Real-time Battery Status
+###  Real-time Battery Status
 - Live battery percentage indicator
 - Charging/discharging status display
 - Color-coded battery levels (red for low, yellow for medium, green for high)
 - Fallback display for devices without battery API support
 
-### 📊 Interactive Goon Counter
+###  Interactive G00n Counter
 - Animated floating effect
 - Click to increment manually
 - Automatic random increments
 - Smooth number transition animations
 - Pulsing glow effect
 
-### 🎨 Design Elements
+###  Design Elements
 - Modern Inter font family
 - Dark gradient background with subtle color shifts
 - Glassmorphism effects with backdrop blur
@@ -30,7 +30,7 @@ A minimalist, dark-themed personal website with modern UI/UX design. Features a 
 - Hover animations and transitions
 - Responsive layout for all devices
 
-### ✨ Ambient Effects
+###  Ambient Effects
 - Floating particle animations
 - Cursor trail effect
 - Typing animation for the title
